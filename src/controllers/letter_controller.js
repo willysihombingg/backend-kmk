@@ -34,7 +34,11 @@ exports.getLetterDetail = async (req, res) => {
 // UPDATE LETTER
 exports.updateLetter = async (req, res) => {
   try {
-    let result = await letterService.updateLetter(req.user, req.body);
+    let result = await letterService.updateLetter(
+      req.query.id,
+      req.body,
+      req.file
+    );
     success(res, result.data, 202, result.message);
   } catch (err) {
     error(res, err.data, 422, err.message);

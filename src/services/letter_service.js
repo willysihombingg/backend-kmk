@@ -2,6 +2,7 @@ const { query } = require("express");
 const { body } = require("express-validator");
 const LetterModel = require("../models/letter");
 const ImageKit = require("imagekit");
+const letter = require("../models/letter");
 
 var imagekit = new ImageKit({
   publicKey: "public_ksNG8sBOic3WrvWhxRVt/y3oCuE=",
@@ -111,12 +112,35 @@ exports.getLetterDetail = async (Letterid) => {
   });
 };
 
-exports.updateLetter = async (creator, body) => {
+exports.updateLetter = async (letterid, body, attachment) => {
   // ONLY ADMIN WHO CAN DO THIS ACTION!!!
   // Params
   // From, to, receier, courier,
   // letter_type, note, outgoing_date,
   // entry_date, attachment, created_by
+
+  let params = {
+    from: body.from,
+    to: body.to,
+    receiver: body.receiver,
+    courier: body.courier,
+    letter_type: body.letter_type,
+    note: body.note,
+    outgoing_date: body.outgoing_date,
+    entry_date: body.entry_date,
+    // attachment: body.attachment,
+  };
+
+  for (let prop in params) if (!params[prop]) delete params[prop];
+
+  if (attachment) {
+    let dataImage = await imagekit.upload({
+      file: attachment.buffer.toString("base64"),
+      fileName: `IMG-${Date.now()}`,
+    });
+    params.attachment = dataImage.url;
+    // console.log(dataImage);
+  }
 
   return new Promise((resolve, reject) => {
     // ADMIN or not
@@ -126,21 +150,7 @@ exports.updateLetter = async (creator, body) => {
     //   });
     // }
 
-    let params = {
-      from: body.from,
-      to: body.to,
-      receiver: body.receiver,
-      courier: body.courier,
-      letter_type: body.letter_type,
-      note: body.note,
-      outgoing_date: body.outgoing_date,
-      entry_date: body.entry_date,
-      attachment: body.attachment,
-    };
-
-    // for (let prop in params) if (!params[prop]) delete params[prop];
-
-    LetterModel.findByIdAndUpdate(id, params, {
+    LetterModel.findByIdAndUpdate(letterid, params, {
       new: true,
     })
       .then((letterUpdate) => {
@@ -161,7 +171,7 @@ exports.deleteLetter = async (letterid) => {
   return new Promise((resolve, reject) => {
     LetterModel.findByIdAndDelete(letterid)
       .then((letterDelete) => {
-        console.log(letterDelete);
+        // console.log(letterDelete);
         return resolve({
           data: letterDelete,
           message: `Letter has been remove`,

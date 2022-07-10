@@ -12,7 +12,12 @@ router.post(
 );
 router.get("/letters", authenticator, letterController.getAllLetter);
 router.get("/letters/details", authenticator, letterController.getLetterDetail);
-router.patch("/letters", authenticator, letterController.updateLetter);
+router.patch(
+  "/letters",
+  attachment,
+  authenticator,
+  letterController.updateLetter
+);
 router.delete("/letters", authenticator, letterController.deleteLetter);
 
 module.exports = router;
