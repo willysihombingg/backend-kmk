@@ -1,12 +1,40 @@
 const { now } = require("mongoose");
 const EventModel = require("../models/event");
+const ImageKit = require("imagekit");
+
+var imagekit = new ImageKit({
+  publicKey: "public_ksNG8sBOic3WrvWhxRVt/y3oCuE=",
+  privateKey: "private_RGWjsi9JaU5RaW0OireaxtWxlC4=",
+  urlEndpoint: "https://ik.imagekit.io/n4ttntgq4",
+});
 
 // function to input letter
-exports.createEvent = async (creator, body) => {
+exports.createEvent = async (creator, body, attachment) => {
   // ONLY ADMIN WHO CAN DO THIS ACTION!!!
   // Params
   // event_name, chairman, participant, handphone,
   // title, place, date, attachment, created_by
+
+  let params = {
+    event_name: body.event_name,
+    chairman: body.chairman,
+    participant: body.participant,
+    handphone: body.handphone,
+    title: body.title,
+    place: body.place,
+    date: body.date,
+    created_by: creator._id,
+  };
+
+  for (let prop in params) if (!params[prop]) delete params[prop];
+
+  if (attachment) {
+    let dataImage = await imagekit.upload({
+      file: attachment.buffer.toString("base64"),
+      fileName: `IMG-${Date.now()}`,
+    });
+    params.attachment = dataImage.url;
+  }
 
   return new Promise((resolve, reject) => {
     // ADMIN OR NOT
@@ -16,20 +44,6 @@ exports.createEvent = async (creator, body) => {
       });
     }
     // const date = new Date(body.date);
-
-    let params = {
-      event_name: body.event_name,
-      chairman: body.chairman,
-      participant: body.participant,
-      handphone: body.handphone,
-      title: body.title,
-      place: body.place,
-      date: body.date,
-      attachment: body.attachment,
-      created_by: creator._id,
-    };
-
-    for (let prop in params) if (!params[prop]) delete params[prop];
 
     EventModel.create(params)
       .then((eventCreate) => {

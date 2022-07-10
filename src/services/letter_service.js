@@ -160,8 +160,9 @@ exports.updateLetter = async (letterid, body, attachment) => {
         });
       })
       .catch((err) => {
+        console.log(err);
         return reject({
-          message: err.message,
+          message: err,
         });
       });
   });
