@@ -15,6 +15,12 @@ exports.createEvent = async (creator, body, attachment) => {
   // event_name, chairman, participant, handphone,
   // title, place, date, attachment, created_by
 
+  if (creator.role != "ADMIN") {
+    return reject({
+      message: "You are not authorized to do this action",
+    });
+  }
+
   let params = {
     event_name: body.event_name,
     chairman: body.chairman,
