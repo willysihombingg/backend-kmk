@@ -98,23 +98,33 @@ exports.getEventDetail = async (eventid) => {
   });
 };
 
-exports.updateEvent = async (id, body) => {
-  console.log("id :", id);
+exports.updateEvent = async (eventid, body, attachment) => {
+  // console.log("id :", id);
+  let params = {
+    event_name: body.event_name,
+    chairman: body.chairman,
+    participant: body.participant,
+    handphone: body.handphone,
+    title: body.title,
+    place: body.place,
+    date: body.date,
+  };
+
+  for (let prop in params) if (!params[prop]) delete params[prop];
+
+  if (attachment) {
+    let dataImage = await imagekit.upload({
+      file: attachment.buffer.toString("base64"),
+      fileName: `IMG-${Date.now()}`,
+    });
+    params.attachment = dataImage.url;
+  }
+
   return new Promise((resolve, reject) => {
-    let params = {
-      event_name: body.event_name,
-      chairman: body.chairman,
-      participant: body.participant,
-      handphone: body.handphone,
-      title: body.title,
-      place: body.place,
-      date: body.date,
-      attachment: body.attachment,
-    };
     // console.log("Params :", params);
     // for (let prop in params) if (!params[prop]) delete params[prop];
 
-    EventModel.findByIdAndUpdate(id, params, {
+    EventModel.findByIdAndUpdate(eventid, params, {
       new: true,
     })
       .then((eventUpdate) => {

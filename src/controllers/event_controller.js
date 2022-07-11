@@ -34,7 +34,11 @@ exports.getEventDetail = async (req, res) => {
 // UPDATE EVENT
 exports.updateEvent = async (req, res) => {
   try {
-    let result = await eventService.updateEvent(req.query.id, req.body);
+    let result = await eventService.updateEvent(
+      req.query.id,
+      req.body,
+      req.file
+    );
     success(res, result.data, 200, result.message);
   } catch (err) {
     error(res, err.data, 422, err.message);
